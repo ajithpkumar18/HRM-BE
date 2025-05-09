@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/middlewares/auth.ts","./src/routes/employees.ts","./src/routes/hrdash.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./src/controllers/user.ts","./src/middlewares/auth.ts","./src/routes/employees.ts","./src/routes/hrdash.ts","./src/schema/models.ts"],"version":"5.8.3"}
