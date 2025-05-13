@@ -1,4 +1,4 @@
-import { User } from "../schema/UserModels";
+import { Contact, Document, PrevEmployment, SocialLinks, User, UserDetails } from "../schema/UserModels";
 
 export const getUser = async (req: any, res: any) => {
 
@@ -29,19 +29,39 @@ export const getUserById = async (req: any, res: any) => {
 }
 
 export const deleteUser = async (req: any, res: any) => {
+
     const userId = req.params.id;
     const user = await User.findById(userId);
+
     if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
     }
+
     if ((req as any).isAdmin) {
-        await User.findByIdAndDelete(userId);
-        res.json({ message: "User deleted successfully" });
+
+        try {
+
+            await UserDetails.findOneAndDelete({ userId: userId });
+            await SocialLinks.findOneAndDelete({ userId: userId });
+            await PrevEmployment.findOneAndDelete({ userId: userId });
+            await Document.findOneAndDelete({ userId: userId });
+            await Contact.findOneAndDelete({ userId: userId });
+            await User.findByIdAndDelete(userId);
+            res.json({ message: "User deleted successfully" });
+
+            return;
+        }
+        catch (error) {
+            res.status(500).json({ message: "Error deleting user" });
+            return;
+        }
+
     }
     else {
         res.status(403).json({ message: "Unauthorized" });
     }
+    return;
 }
 
 export const updateUser = async (req: any, res: any) => {

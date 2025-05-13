@@ -10,63 +10,71 @@ export const postHolidays = async (req: any, res: any) => {
         description: description
     });
 
-    await newHoliday.save();
-    res.status(201).json({ message: "New Holiday created successfully" });
+    try {
+        await newHoliday.save();
+        res.status(201).json("New holiday created successfully");
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error creating holiday" });
+
+    }
+
+    return;
 }
 
 export const getHoliday = async (req: any, res: any) => {
 
-    const holidays = await Holiday.find();
+    try {
+        const holidays = await Holiday.find();
+        if (!holidays) {
+            res.status(404).json({ message: "No users found" });
+            return;
+        }
 
-    if (!holidays) {
-        res.status(404).json({ message: "No users found" });
-        return;
+        res.status(200).json(holidays);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error fetching holidays" });
     }
 
-    console.log((req as any).isAdmin, "req.body");
-
-    res.json(holidays);
-
     return;
+
 }
 
 export const deleteHoliday = async (req: any, res: any) => {
     const holidayId = req.params.id;
 
-    const holiday = await Holiday.findById(holidayId);
-
-    if (!holiday) {
-        res.status(404).json({ message: "User not found" });
-        return;
-    }
     if ((req as any).isAdmin) {
         await Holiday.findByIdAndDelete(holidayId);
-        res.json({ message: "User deleted successfully" });
+        res.json({ message: "Holiday deleted successfully" });
     }
     else {
         res.status(403).json({ message: "Unauthorized" });
     }
+
+    return;
 }
 
 export const updateHoliday = async (req: any, res: any) => {
     const holidayId = req.params.id;
-    const holiday = await Holiday.findById(holidayId);
-    if (!holiday) {
-        res.status(404).json({ message: "User not found" });
-        return;
-    }
+
     if ((req as any).isAdmin) {
         const { date, day, description } = req.body;
+        try {
 
-        const updatedHoliday = await Holiday.findByIdAndUpdate(holidayId, {
-            date: date,
-            day: day,
-            description: description
-        }, { new: true });
-
-        res.json(updatedHoliday);
+            const updatedHoliday = await Holiday.findByIdAndUpdate(holidayId, {
+                date: date,
+                day: day,
+                description: description
+            }, { new: true });
+            res.json(updatedHoliday);
+        }
+        catch (error) {
+            res.status(500).json({ message: "Error updating holiday" });
+        }
     }
     else {
         res.status(403).json({ message: "Unauthorized" });
     }
+    return;
 }

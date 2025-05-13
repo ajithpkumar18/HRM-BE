@@ -1,6 +1,11 @@
-import mongoose from "mongoose";
-
-const userSchema = new mongoose.Schema({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Holiday = exports.Attendance = exports.PrevEmployment = exports.Document = exports.Contact = exports.SocialLinks = exports.UserDetails = exports.User = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const userSchema = new mongoose_1.default.Schema({
     username: {
         type: String,
         required: true,
@@ -24,12 +29,9 @@ const userSchema = new mongoose.Schema({
         default: false
     }
 }, { timestamps: true });
-
-
-
-const userDetailsSchema = new mongoose.Schema({
+const userDetailsSchema = new mongoose_1.default.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -78,11 +80,10 @@ const userDetailsSchema = new mongoose.Schema({
         type: Date,
         required: true,
     }
-}, { timestamps: true })
-
-const socialLinksSchema = new mongoose.Schema({
+}, { timestamps: true });
+const socialLinksSchema = new mongoose_1.default.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -98,11 +99,10 @@ const socialLinksSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-}, { timestamps: true })
-
-const contactSchema = new mongoose.Schema({
+}, { timestamps: true });
+const contactSchema = new mongoose_1.default.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -122,11 +122,10 @@ const contactSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-}, { timestamps: true })
-
-const documentSchema = new mongoose.Schema({
+}, { timestamps: true });
+const documentSchema = new mongoose_1.default.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -146,11 +145,10 @@ const documentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-})
-
-const prevEmploymentSchema = new mongoose.Schema({
+});
+const prevEmploymentSchema = new mongoose_1.default.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -179,11 +177,10 @@ const prevEmploymentSchema = new mongoose.Schema({
         type: Date,
         required: true,
     }
-}, { timestamps: true })
-
-const attendanceSchema = new mongoose.Schema({
+}, { timestamps: true });
+const attendanceSchema = new mongoose_1.default.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -204,9 +201,8 @@ const attendanceSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-}, { timestamps: true })
-
-const HolidaySchema = new mongoose.Schema({
+}, { timestamps: true });
+const HolidaySchema = new mongoose_1.default.Schema({
     date: {
         type: Date,
         required: true
@@ -219,18 +215,12 @@ const HolidaySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-}, { timestamps: true })
-
-export const User = mongoose.model("User", userSchema)
-export const UserDetails = mongoose.model("UserDetails", userDetailsSchema)
-export const SocialLinks = mongoose.model("SocialLinks", socialLinksSchema)
-export const Contact = mongoose.model("Contact", contactSchema)
-export const Document = mongoose.model("Document", documentSchema)
-export const PrevEmployment = mongoose.model("PrevEmployment", prevEmploymentSchema)
-export const Attendance = mongoose.model("Attendance", attendanceSchema)
-export const Holiday = mongoose.model("Holiday", HolidaySchema)
-
-
-
-
-
+}, { timestamps: true });
+exports.User = mongoose_1.default.model("User", userSchema);
+exports.UserDetails = mongoose_1.default.model("UserDetails", userDetailsSchema);
+exports.SocialLinks = mongoose_1.default.model("SocialLinks", socialLinksSchema);
+exports.Contact = mongoose_1.default.model("Contact", contactSchema);
+exports.Document = mongoose_1.default.model("Document", documentSchema);
+exports.PrevEmployment = mongoose_1.default.model("PrevEmployment", prevEmploymentSchema);
+exports.Attendance = mongoose_1.default.model("Attendance", attendanceSchema);
+exports.Holiday = mongoose_1.default.model("Holiday", HolidaySchema);

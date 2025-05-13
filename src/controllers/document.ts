@@ -1,7 +1,9 @@
-import { Document, SocialLinks, User } from "../schema/UserModels";
+import { Document } from "../schema/UserModels";
 
 export const postDocument = async (req: any, res: any) => {
     const { userId, user_photo, aadhaar_front, aadhaar_back, pan_card } = req.body;
+
+
     const newDocument = new Document({
         userId: userId,
         user_photo: user_photo,
@@ -10,73 +12,61 @@ export const postDocument = async (req: any, res: any) => {
         pan_card: pan_card
     });
 
-    await newDocument.save();
-    res.status(201).json(newDocument);
+    try {
+
+        await newDocument.save();
+        res.status(201).json(newDocument);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error creating document" });
+    }
+
+    return;
 }
 
 export const getDocumentById = async (req: any, res: any) => {
 
     const userId = req.params.id;
+    try {
 
-    const user = await Document.findById(userId);
+        const userDocument = await Document.findOne({ userId: userId });
 
-    if (!user) {
+        if (!userDocument) {
 
-        res.status(404).json({ message: "User not found" });
+            res.status(404).json({ message: "User not found" });
 
-        return;
+            return;
+
+        }
+
+        res.status(200).json(userDocument);
+    }
+    catch (error) {
+
+        res.status(500).json({ message: "Error fetching document" });
 
     }
 
-    res.json(user);
+    return;
 
 }
 
-export const deleteSocial = async (req: any, res: any) => {
-
+export const updateDocument = async (req: any, res: any) => {
     const userId = req.params.id;
+    const { user_photo, aadhaar_front, aadhaar_back, pan_card } = req.body;
+    try {
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-
-        res.status(404).json({ message: "User not found" });
-
-        return;
-
-    }
-
-    if ((req as any).isAdmin) {
-
-        await User.findByIdAndDelete(userId);
-
-        res.json({ message: "User deleted successfully" });
-
-    }
-    else {
-
-        res.status(403).json({ message: "Unauthorized" });
-
-    }
-}
-
-export const updateSocial = async (req: any, res: any) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
-    if (!user) {
-        res.status(404).json({ message: "User not found" });
-        return;
-    }
-    if ((req as any).isAdmin) {
-        const { username, email, password } = req.body;
-        const updatedUser = await User.findByIdAndUpdate(userId, {
-            username: username,
-            email: email,
-            password: password
+        const updatedDocument = await Document.findOneAndUpdate({ userId: userId }, {
+            user_photo: user_photo,
+            aadhaar_front: aadhaar_front,
+            aadhaar_back: aadhaar_back,
+            pan_card: pan_card
         }, { new: true });
-        res.json(updatedUser);
+        res.status(200).json({ message: "Document updated", updatedDocument });
     }
-    else {
-        res.status(403).json({ message: "Unauthorized" });
+    catch (error) {
+        res.status(500).json({ message: "Error updating document" });
     }
+
+    return;
 }

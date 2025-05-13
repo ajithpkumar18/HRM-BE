@@ -1,19 +1,14 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../middlewares/auth";
+import { getUserDetails, postUserDetails } from "../controllers/userDetails";
 
 const router = Router();
 
-router.get("/dashboard", authMiddleware, (req: Request, res: Response) => {
-    res.send("Hello World!");
-});
+router.get("/dashboard", authMiddleware,);
 
-router.get("/employees", authMiddleware, (req: Request, res: Response) => {
-    res.send("Hello World!");
-});
+router.get("/employees", authMiddleware, getUserDetails);
 
-router.post("/employee", authMiddleware, (req: Request, res: Response) => {
-    res.send("Hello World!");
-});
+router.post("/employees", authMiddleware, postUserDetails);
 
 router.put("/employee", authMiddleware, (req: Request, res: Response) => {
     res.send("Hello World!");

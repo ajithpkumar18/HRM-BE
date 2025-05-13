@@ -15,8 +15,12 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
             return
         }
         else {
+            console.log(decoded, "decoded");
             if (!req.body) req.body = {};
             (req as any).isAdmin = (decoded as JwtPayload).isAdmin;
+            (req as any).id = (decoded as JwtPayload).id;
+            console.log((req as any).isAdmin, "is admin");
+            console.log((req as any).id, "id");
             next();
         }
     }

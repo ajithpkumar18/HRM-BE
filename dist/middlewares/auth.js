@@ -19,9 +19,13 @@ function authMiddleware(req, res, next) {
             return;
         }
         else {
+            console.log(decoded, "decoded");
             if (!req.body)
                 req.body = {};
             req.isAdmin = decoded.isAdmin;
+            req.id = decoded.id;
+            console.log(req.isAdmin, "is admin");
+            console.log(req.id, "id");
             next();
         }
     }

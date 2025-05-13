@@ -8,24 +8,16 @@ export const postSocial = async (req: any, res: any) => {
         linkedin_link: linkedin_link,
         userId: userId
     });
-    await newSocial.save();
-    res.status(201).json(newSocial);
-}
-
-export const getSocial = async (req: any, res: any) => {
-
-    const users = await SocialLinks.find().select("username isAdmin _id");
-
-    if (!users) {
-        res.status(404).json({ message: "No users found" });
+    try {
+        await newSocial.save();
+        res.status(201).json(newSocial);
+        return;
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error creating social links" });
         return;
     }
 
-    console.log((req as any).isAdmin, "req.body");
-
-    res.json(users);
-
-    return;
 }
 
 export const getSocialById = async (req: any, res: any) => {
@@ -37,23 +29,17 @@ export const getSocialById = async (req: any, res: any) => {
         return;
     }
 
-    res.json(user);
-}
-
-export const deleteSocial = async (req: any, res: any) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
-    if (!user) {
-        res.status(404).json({ message: "User not found" });
+    try {
+        const social = await SocialLinks.findOne({ userId: userId });
+        res.status(200).json({ message: "Social Links fetched successfully" });
+        return
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error fetching social links" });
         return;
     }
-    if ((req as any).isAdmin) {
-        await User.findByIdAndDelete(userId);
-        res.json({ message: "User deleted successfully" });
-    }
-    else {
-        res.status(403).json({ message: "Unauthorized" });
-    }
+
+
 }
 
 export const updateSocial = async (req: any, res: any) => {
@@ -63,16 +49,20 @@ export const updateSocial = async (req: any, res: any) => {
         res.status(404).json({ message: "User not found" });
         return;
     }
-    if ((req as any).isAdmin) {
-        const { username, email, password } = req.body;
-        const updatedUser = await User.findByIdAndUpdate(userId, {
-            username: username,
-            email: email,
-            password: password
+
+    try {
+        const { fb_link, x_link, linkedin_link } = req.body;
+        const updatedLinks = await SocialLinks.findOneAndUpdate({ userId: userId }, {
+            fb_link: fb_link,
+            x_link: x_link,
+            linkedin_link: linkedin_link
         }, { new: true });
-        res.json(updatedUser);
+
+        res.json({ message: "Social Links updated successfully", updatedLinks });
+        return
     }
-    else {
-        res.status(403).json({ message: "Unauthorized" });
+    catch (error) {
+        res.status(500).json({ message: "Error updating social links" });
+        return;
     }
 }

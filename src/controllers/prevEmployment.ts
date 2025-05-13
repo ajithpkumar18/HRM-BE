@@ -25,23 +25,16 @@ export const getPrevEmploymentById = async (req: any, res: any) => {
         return;
     }
 
-    res.json(user);
-}
+    try {
+        const prevEmployment = await PrevEmployment.findOne({ userId: userId });
+        res.status(200).json(prevEmployment);
 
-export const deletePrevEmployment = async (req: any, res: any) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
-    if (!user) {
-        res.status(404).json({ message: "User not found" });
-        return;
     }
-    if ((req as any).isAdmin) {
-        await User.findByIdAndDelete(userId);
-        res.json({ message: "User deleted successfully" });
+    catch (error) {
+        res.status(500).json({ message: "Error fetching prev employment" });
+
     }
-    else {
-        res.status(403).json({ message: "Unauthorized" });
-    }
+    return;
 }
 
 export const updatePrevEmployment = async (req: any, res: any) => {
