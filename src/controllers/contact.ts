@@ -1,6 +1,6 @@
 import { Contact } from "../schema/UserModels";
 
-export const postContact = async (req: any, res: any) => {
+export const postContactId = async (req: any, res: any) => {
     const userId = req.params.id;
     const { primaryContact,
         alternateContact,
@@ -43,7 +43,7 @@ export const getContactById = async (req: any, res: any) => {
 
 }
 
-export const updateContact = async (req: any, res: any) => {
+export const updateContactId = async (req: any, res: any) => {
     const userId = req.params.id;
     const { primaryContact,
         alternateContact,
