@@ -17,6 +17,7 @@ router.post('/signin', SignIn);
 
 router.post('/signup', SignUp)
 
+
 router.get("/employees", authMiddleware, getUserDetails);
 
 router.get("/employee/:id", authMiddleware, getUserDetailsById);
@@ -36,9 +37,7 @@ router.put("/prevEmployment/:id", authMiddleware, updatePrevEmployment);
 
 
 router.get("/socialLinks/id", authMiddleware, getSocialById)
-
 router.post("/socialLinks/:id", authMiddleware, postSocialById)
-
 router.put("/socialLinks/:id", authMiddleware, updateSocialById)
 
 router.get("/document/:id", authMiddleware, getDocumentById)
@@ -51,8 +50,9 @@ router.put("/contact/:id", authMiddleware, updateContactId)
 
 router.get("/attendance/:id", authMiddleware, getAttendance);
 router.post("/attendance/login/:id", authMiddleware, loginAttendance);
-router.post("/attendance/:id", authMiddleware, logoutAttendance);
+router.post("/attendance/logout/:id", authMiddleware, logoutAttendance);
 router.put("/attendance/:id", authMiddleware, updateAttendance);
+
 
 router.get("/leads", authMiddleware,);
 
@@ -63,6 +63,7 @@ router.post("/lead", authMiddleware, (req: Request, res: Response) => {
 router.put("/lead", authMiddleware, (req: Request, res: Response) => {
     res.send("Hello World!");
 });
+
 
 router.get("/holidays", authMiddleware,);
 

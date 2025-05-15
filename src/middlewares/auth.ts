@@ -10,7 +10,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     else {
         try {
             let decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-            console.log(decoded, "decoded);");
+            console.log(decoded, "decoded");
 
             if (!decoded) {
                 res.status(401).json({ message: 'Unauthorized' });
