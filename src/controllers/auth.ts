@@ -49,7 +49,10 @@ export const SignIn = async (req: Request, res: Response) => {
         let token = jwt.sign({ id: newUser._id, isAdmin: newUser.isAdmin }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
         res.cookie("access_token", token, {
             httpOnly: true,
-            secure: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 1000 // 1 hour
         }).status(200).json({ message: "Login successful" });
         return;
 
@@ -62,6 +65,7 @@ export const SignIn = async (req: Request, res: Response) => {
 
 export const SignUp = async (req: Request, res: Response) => {
 
+    console.log("signup")
     const { username, email, password } = req.body;
 
     const passwordValidationResult = passwordSchema.safeParse(password);

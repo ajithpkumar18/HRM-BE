@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 import { getUser } from './controllers/user';
 import cookieParser from 'cookie-parser';
 import { SignIn, SignUp } from './controllers/auth';
+import cors from 'cors';
 
 
 dotenv.config();
@@ -34,13 +35,17 @@ const main = async () => {
 }
 
 const app = express();
-
+app
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser())
 
 app.use("/hr", hrRouter)
 
-app.listen(3000, () => {
+app.listen(3001, () => {
     main();
-    console.log('Server is running on port 3000');
+    console.log('Server is running on port 3001');
 })

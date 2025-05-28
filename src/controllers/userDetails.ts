@@ -1,3 +1,4 @@
+import { log } from "console";
 import { User, UserDetails } from "../schema/UserModels";
 
 
@@ -30,7 +31,7 @@ export const postUserDetails = async (req: any, res: any) => {
         datOfJooining,
         dateOfLeaving
     });
-    const user = await User.findById(userId);
+    const user = await UserDetails.findOne({ userId: userId });
     if (!user) {
         try {
             await newUserDetails.save();
@@ -38,7 +39,7 @@ export const postUserDetails = async (req: any, res: any) => {
             return;
         }
         catch (error) {
-            res.status(500).json({ message: "Error creating user details" });
+            res.status(500).json({ message: "Error creating user details", error: error });
             console.log(error);
 
             return;
@@ -68,8 +69,9 @@ export const getUserDetails = async (req: any, res: any) => {
 
 export const getUserDetailsById = async (req: any, res: any) => {
 
-    const userId = req.params.id;
-
+    console.log("get Employee by ID");
+    const userId = req.id;
+    log(userId, "userId");
     try {
 
         const userDetails = await UserDetails.findOne({ userId: userId });

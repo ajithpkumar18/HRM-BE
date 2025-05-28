@@ -20,7 +20,7 @@ router.post('/signup', SignUp)
 
 router.get("/employees", authMiddleware, getUserDetails);
 
-router.get("/employee/:id", authMiddleware, getUserDetailsById);
+router.get("/employee", authMiddleware, getUserDetailsById);
 
 router.post("/employee", authMiddleware, postUserDetails);
 
