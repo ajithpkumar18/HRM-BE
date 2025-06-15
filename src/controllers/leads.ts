@@ -1,84 +1,84 @@
-import { Leads } from "../schema/LeadsModel";
-import { Contact, User } from "../schema/UserModels";
+import { Request, Response } from "express";
+import { Contact, User, Leads } from "../schema/UserModels";
 
-export const postLeads = async (req: any, res: any) => {
-    const { contact_person,
-        contact_number,
-        market_niche,
-        service,
-        assigned_to,
-        status
-    } = req.body;
-
-    const newLeads = new Leads({
-        contact_person,
-        contact_number,
-        market_niche,
-        service,
-        status
-    });
-
+export const getLeads = async (req: Request, res: Response) => {
     try {
+        const leads = await Leads.find();
+        res.status(200).json(leads);
+    } catch (error) {
+        console.error("Error fetching leads:", error);
+        res.status(500).json({ message: "Error fetching leads", error });
+    }
+};
 
-        const existing = await Leads.findOne({ contact_person: contact_person });
-
-        const assigned_id = await User.findOne({ username: assigned_to });
-
-        if (!assigned_id) {
-            res.status(400).json({ message: "Assigned user not found" });
+export const getLeadById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const lead = await Leads.findById(id);
+        if (!lead) {
+            res.status(404).json({ message: "Lead not found" });
             return;
         }
-
-        newLeads.assigned_to = assigned_id._id;
-
-        res.status(400).json({ message: "Leads already exists" });
-        return
-
-        await newLeads.save();
-        res.status(200).json({ message: "Contact created successfully" });
+        res.status(200).json(lead);
+    } catch (error) {
+        console.error("Error fetching Leads:", error);
+        res.status(500).json({ message: "Error fetching lead", error });
     }
-    catch (error) {
-        res.status(500).json({ message: "Error creating contact" });
-    }
+};
 
-    return;
-}
-
-export const getContactById = async (req: any, res: any) => {
-
-    const userId = req.params.id;
+export const createLead = async (req: Request, res: Response) => {
+    const { assignedTo, contactPerson, contactNumber, marketNiche, service, status } = req.body;
+    console.log(req.body)
     try {
-
-        const userDocument = await Contact.findOne({ userId: userId });
-        res.status(200).json(userDocument);
+        const user = await User.findOne({ companyID: assignedTo })
+        if (user) {
+            const newLead = new Leads({
+                contact_person: contactPerson,
+                contact_number: contactNumber,
+                market_niche: marketNiche,
+                service: service,
+                assigned_to: assignedTo,
+                status: "Pending"
+            });
+            await newLead.save();
+            res.status(201).json({ message: "Lead created successfully", lead: newLead });
+        }
+        else {
+            res.status(401).json({ message: "No user employee to be assigned to. Kindly enter the current company ID" });
+        }
+    } catch (error) {
+        console.error("Error creating lead:", error);
+        res.status(500).json({ message: "Error creating lead", error });
     }
-    catch (error) {
-        res.status(500).json({ message: "Error fetching document" });
-    }
+    return
+};
 
-    return;
-
-}
-
-export const updateContactId = async (req: any, res: any) => {
-    const userId = req.params.id;
-    const { primaryContact,
-        alternateContact,
-        primaryEmergencyContact,
-        alternateEmergencyContact } = req.body;
+export const updateLead = async (req: Request, res: Response) => {
+    const { id } = req.params;
     try {
-
-        const updatedContact = await Contact.findOneAndUpdate({ userId: userId }, {
-            primaryContact,
-            alternateContact,
-            primaryEmergencyContact,
-            alternateEmergencyContact
-        }, { new: true });
-        res.status(200).json({ message: "Contact updated", updatedContact });
+        const updatedLead = await Leads.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updatedLead) {
+            res.status(404).json({ message: "Lead not found" });
+            return;
+        }
+        res.status(200).json({ message: "Lead updated successfully", lead: updatedLead });
+    } catch (error) {
+        console.error("Error updating lead:", error);
+        res.status(500).json({ message: "Error updating lead", error });
     }
-    catch (error) {
-        res.status(500).json({ message: "Error updating Contact" });
-    }
+};
 
-    return;
-}
+export const deleteLead = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const deletedLead = await Leads.findByIdAndDelete(id);
+        if (!deletedLead) {
+            res.status(404).json({ message: "Lead not found" });
+            return;
+        }
+        res.status(200).json({ message: "Lead deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting lead:", error);
+        res.status(500).json({ message: "Error deleting lead", error });
+    }
+};

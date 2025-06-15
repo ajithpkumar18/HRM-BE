@@ -25,20 +25,24 @@ export const SignIn = async (req: Request, res: Response) => {
     const identifierValidationResult = identifierIsEmail ? emailSchema.safeParse(identifier) : nameSchema.safeParse(identifier);
 
     if (!passwordValidationResult.success || !identifierValidationResult.success) {
-
         res.status(400).json({ "message": "Invalid Input" });
         return;
     }
+    console.log(passwordValidationResult.success, identifierValidationResult.success, "Sign in endpoint")
 
     try {
 
         const newUser = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
-
+        console.log(identifier, password, newUser)
         if (!newUser) {
             res.status(400).json({ message: "User not found" });
             return;
         }
 
+        if (!newUser.password) {
+            res.status(400).json({ message: "Invalid password" });
+            return;
+        }
         const isMatch = await bcrypt.compare(password, newUser.password);
         console.log(newUser, isMatch);
         if (!isMatch) {
@@ -52,8 +56,8 @@ export const SignIn = async (req: Request, res: Response) => {
             secure: false,
             sameSite: "lax",
             path: "/",
-            maxAge: 60 * 60 * 1000 // 1 hour
-        }).status(200).json({ message: "Login successful" });
+            maxAge: 60 * 60 * 1000
+        }).status(200).json({ id: newUser._id, username: newUser.username, email: newUser.email, isAdmin: newUser.isAdmin });
         return;
 
     } catch (err) {
@@ -64,37 +68,53 @@ export const SignIn = async (req: Request, res: Response) => {
 }
 
 export const SignUp = async (req: Request, res: Response) => {
+    console.log("signup");
 
-    console.log("signup")
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     const passwordValidationResult = passwordSchema.safeParse(password);
     const emailValidationResult = emailSchema.safeParse(email);
     const nameValidationResult = nameSchema.safeParse(username);
 
     if (!passwordValidationResult.success || !emailValidationResult.success || !nameValidationResult.success) {
-
-        res.status(400).json({ "message": "Invalid Input" });
+        res.status(400).json({
+            message: "Invalid Input", errors: {
+                password: passwordValidationResult.error?.issues,
+                email: emailValidationResult.error?.issues,
+                username: nameValidationResult.error?.issues
+            }
+        });
         return;
+    }
 
+    const validRoles = ["HR", "Admin", "Employee"];
+    if (!role || !validRoles.includes(role)) {
+        res.status(400).json({ message: "Invalid role. Allowed roles are HR, Admin, Employee." });
+        return;
     }
 
     try {
-        const hashed = await bcrypt.hash(password, 10);
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            res.status(400).json({ message: "Email or username already exists" });
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({
-            username: username,
-            email: email,
-            password: hashed,
-            isAdmin: false
-        })
+            username,
+            email,
+            password: hashedPassword,
+            role,
+            isAdmin: role === "Admin"
+        });
+
 
         const savedUser = await newUser.save();
-        res.status(200).json({ message: "User created successfully" });
-        return;
-
+        res.status(201).json({ message: "User created successfully", user: { id: savedUser._id, username: savedUser.username, email: savedUser.email, role: savedUser.role } });
     } catch (err) {
-        console.log(err);
+        console.error("Error creating user:", err);
         res.status(500).json({ message: "Error creating user" });
-        return;
     }
-}
+};

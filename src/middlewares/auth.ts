@@ -1,7 +1,19 @@
 import { NextFunction, Request, Response } from "express";
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                role?: string;
+                [key: string]: any;
+                userID?: string;
+            };
+        }
+    }
+}
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { User } from "../schema/UserModels";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies['access_token'];
     console.log(req.cookies, "cookies");
     if (!token) {
@@ -11,15 +23,20 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 
     try {
         let decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-        console.log(decoded, "decoded");
+        const user = await User.findOne({ _id: decoded.id });
 
-        if (!decoded) {
+        console.log(decoded.id, "id")
+        console.log(user)
+        if (!user) {
             res.status(401).json({ message: 'Unauthorized' });
             return
         }
 
-        (req as any).isAdmin = (decoded as JwtPayload).isAdmin;
-        (req as any).id = (decoded as JwtPayload).id;
+        (req as any).user = user;
+
+        if (req.params.id == "") { req.params.id = user.companyID ?? req.params.id; }
+        (req as any).userID = user._id.toString();
+        console.log(user._id, "usdrID")
 
         next();
     }
@@ -30,6 +47,18 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     }
 
 }
+
+export const authorizeRoles = (roles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction): void => {
+        const userRole = req.user?.role;
+        console.log(userRole)
+        if (!userRole || !roles.includes(userRole)) {
+            res.status(403).json({ message: "Access denied" });
+        } else {
+            next();
+        }
+    };
+};
 
 
 

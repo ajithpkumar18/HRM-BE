@@ -15,14 +15,6 @@ import cors from 'cors';
 
 dotenv.config();
 
-// {   
-//     "username": "roman",
-//     "email":"roman@gmail.com",
-//     "password": "eQewqd1esz@"
-//  }
-
-
-
 
 const main = async () => {
     try {

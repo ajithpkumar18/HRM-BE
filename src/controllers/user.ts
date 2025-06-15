@@ -1,4 +1,4 @@
-import { Contact, Document, PrevEmployment, SocialLinks, User, UserDetails } from "../schema/UserModels";
+import { Contact, Document, PrevEmployment, SocialLinks, User } from "../schema/UserModels";
 
 export const getUser = async (req: any, res: any) => {
 
@@ -17,7 +17,7 @@ export const getUser = async (req: any, res: any) => {
 }
 
 export const getUserById = async (req: any, res: any) => {
-    const userId = req.params.id;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -30,7 +30,8 @@ export const getUserById = async (req: any, res: any) => {
 
 export const deleteUser = async (req: any, res: any) => {
 
-    const userId = req.params.id;
+    const userId = req.user.id;
+    console.log(userId, "userId");
     const user = await User.findById(userId);
 
     if (!user) {
@@ -38,17 +39,16 @@ export const deleteUser = async (req: any, res: any) => {
         return;
     }
 
-    if ((req as any).isAdmin) {
+    if (req.user.role === "Admin" || req.user.role === "HR") {
 
         try {
 
-            await UserDetails.findOneAndDelete({ userId: userId });
             await SocialLinks.findOneAndDelete({ userId: userId });
             await PrevEmployment.findOneAndDelete({ userId: userId });
             await Document.findOneAndDelete({ userId: userId });
             await Contact.findOneAndDelete({ userId: userId });
             await User.findByIdAndDelete(userId);
-            res.json({ message: "User deleted successfully" });
+            res.status(200).json({ message: "User deleted successfully", succeess: true });
 
             return;
         }
@@ -65,7 +65,7 @@ export const deleteUser = async (req: any, res: any) => {
 }
 
 export const updateUser = async (req: any, res: any) => {
-    const userId = req.params.id;
+    const userId = req.user.id;
     const user = await User.findById(userId);
     if (!user) {
         res.status(404).json({ message: "User not found" });
