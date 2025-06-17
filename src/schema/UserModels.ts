@@ -176,29 +176,18 @@ const prevEmploymentSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 const attendanceSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-
-    },
-    date: {
-        type: Date,
-
-    },
-    status: {
-        type: String,
-
-        enum: ["Present", "Leave", "HalfDay"]
-    },
-    checkInTime: {
-        type: Date,
-
-    },
-    checkOutTime: {
-        type: Date,
-
-    },
-}, { timestamps: true })
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    date: { type: Date, required: true },
+    checkInTime: { type: Date },
+    checkOutTime: { type: Date },
+    status: { type: String, enum: ["Present", "Leave"], required: true },
+    breaks: [
+        {
+            breakStartTime: { type: Date, required: true },
+            breakEndTime: { type: Date, required: true },
+        },
+    ],
+});
 
 const HolidaySchema = new mongoose.Schema({
     date: {

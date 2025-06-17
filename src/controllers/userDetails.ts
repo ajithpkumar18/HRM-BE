@@ -137,6 +137,46 @@ export const getUserDetailsByCompanyID = async (req: any, res: any) => {
     return;
 }
 
+export const SearchUserDetails = async (req: any, res: any) => {
+    const query = req.query.q;
+
+    console.log(query, "SearchUserDetails")
+    try {
+        console.log("searching users");
+
+        const userDetails = await User.find({
+            $or: [
+                { username: { $regex: query, $options: 'i' } },
+                { companyID: { $regex: query, $options: 'i' } }
+            ]
+        });
+        console.log("user details", userDetails)
+
+        if (!userDetails || userDetails.length === 0) {
+            res.status(404).json({ message: "No users found matching the search criteria" });
+            return;
+        }
+
+        const data = userDetails.map(user => ({
+            username: user.username,
+            email: user.email,
+            fullName: user.fullName,
+            role: user.role,
+            companyID: user.companyID,
+            residence: user.residence,
+            designation: user.designation,
+            empRole: user.empRole,
+            empType: user.empType,
+            team: user.team,
+            dateOfJoining: user.dateOfJoining
+        }));
+        res.status(200).json({ message: "Users found", data });
+    } catch (error) {
+        console.error("Error searching user details:", error);
+        res.status(500).json({ message: "Error searching user details", error });
+    }
+};
+
 export const updateUserDetails = async (req: any, res: any) => {
     console.log("UpdateDeyails")
     const userRole = req.user?.role;

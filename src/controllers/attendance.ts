@@ -49,7 +49,6 @@ export const logoutAttendance = async (req: any, res: any) => {
     console.log("Logout attempt by user:", userId);
 
     try {
-        // Find the attendance record for the user for today with status "Present"
         const attendance = await Attendance.findOne({ userId: userId, date: dateOnly, status: "Present" });
 
         if (!attendance) {
@@ -57,19 +56,17 @@ export const logoutAttendance = async (req: any, res: any) => {
             return;
         }
 
-        // Check if the user has already logged out
         if (attendance.checkOutTime) {
             res.status(400).json({ message: "You have already logged out for today." });
             return;
         }
 
-        // Update the logout time (checkOutTime) with the current time
         attendance.checkOutTime = istDate;
         await attendance.save();
 
         res.status(200).json({
             message: "Logout marked successfully",
-            logoutTime: istDate, // Return the logout time
+            logoutTime: istDate,
             attendance
         });
     } catch (error) {
@@ -143,6 +140,7 @@ export const getDailyAttendance = async (req: any, res: any) => {
                     status: 1,
                     checkInTime: 1,
                     checkOutTime: 1,
+                    breaks: 1,
                     "userDetails.username": 1,
                     "userDetails.email": 1
                 }
@@ -158,5 +156,73 @@ export const getDailyAttendance = async (req: any, res: any) => {
     } catch (error) {
         console.error("Error fetching attendance records:", error);
         res.status(500).json({ message: "Error fetching attendance records", error });
+    }
+};
+
+export const addBreak = async (req: any, res: any) => {
+    const userId = req.userID;
+    const { breakStartTime, breakEndTime } = req.body;
+
+    console.log("Break", userId, breakStartTime, breakEndTime)
+    if (!breakStartTime || !breakEndTime) {
+        res.status(400).json({ message: "Break start time and end time are required" });
+        return;
+    }
+
+    try {
+
+        const today = new Date();
+        const istDate = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
+        const dateOnly = new Date().toISOString().split('T')[0]
+
+        const breakStart = new Date(breakStartTime);
+        const breakEnd = new Date(breakEndTime);
+
+        if (breakStart <= istDate) {
+            res.status(400).json({ start: istDate, now: breakStart, message: "Break start time must be greater than the current time" });
+            return;
+        }
+
+        const endOfDayIST = new Date(istDate);
+        endOfDayIST.setHours(19, 0, 0, 0);
+
+        console.log()
+        if (breakEnd > breakStart && breakEnd < endOfDayIST) {
+            res.status(400).json({ end: breakEnd, now: breakStart, message: "Break end time must be before 7 PM IST" });
+            return;
+        }
+
+        console.log(dateOnly);
+        const attendance = await Attendance.findOne({ userId: userId, date: dateOnly });
+
+        if (!attendance) {
+            res.status(404).json({ message: "No attendance record found for today. Please log in first." });
+            return;
+        }
+
+        if (!attendance.breaks) {
+            attendance.breaks = attendance.breaks || [];
+        }
+        if (attendance.breaks.length < 4) {
+
+            attendance.breaks.push({
+                breakStartTime: new Date(breakStartTime),
+                breakEndTime: new Date(breakEndTime),
+            });
+            await attendance.save();
+            res.status(200).json({
+                message: "Break added successfully",
+                attendance,
+            });
+        }
+        else {
+            res.status(411).json({ message: "4 breaks already done" })
+        }
+
+
+
+    } catch (error) {
+        console.error("Error adding break:", error);
+        res.status(500).json({ message: "Error adding break", error });
     }
 };
