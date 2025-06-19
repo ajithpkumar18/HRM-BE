@@ -118,3 +118,19 @@ export const SignUp = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Error creating user" });
     }
 };
+
+export const Logout = async (req: Request, res: Response) => {
+    try {
+        res.clearCookie("access_token", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/"
+        });
+
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (err) {
+        console.error("Error during logout:", err);
+        res.status(500).json({ message: "Error logging out" });
+    }
+};

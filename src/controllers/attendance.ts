@@ -176,19 +176,26 @@ export const addBreak = async (req: any, res: any) => {
         const dateOnly = new Date().toISOString().split('T')[0]
 
         const breakStart = new Date(breakStartTime);
+        const breakStartIST = new Date(breakStart.getTime() + 5.5 * 60 * 60 * 1000);
         const breakEnd = new Date(breakEndTime);
+        const breakEndIST = new Date(breakEnd.getTime() + 5.5 * 60 * 60 * 1000);
+        console.log("now:", istDate, "breakStart: ", new Date(breakStart.getTime() + 5.5 * 60 * 60 * 1000), "breakEnd:", new Date(breakEnd.getTime() + 5.5 * 60 * 60 * 1000))
 
-        if (breakStart <= istDate) {
+        if (breakStartIST >= istDate) {
             res.status(400).json({ start: istDate, now: breakStart, message: "Break start time must be greater than the current time" });
             return;
         }
 
-        const endOfDayIST = new Date(istDate);
-        endOfDayIST.setHours(19, 0, 0, 0);
+        const endOfDay = new Date(istDate);
+        endOfDay.setHours(19, 0, 0, 0);
+        const endOfDayIST = new Date(endOfDay.getTime() + 5.5 * 60 * 60 * 1000)
 
-        console.log()
-        if (breakEnd > breakStart && breakEnd < endOfDayIST) {
-            res.status(400).json({ end: breakEnd, now: breakStart, message: "Break end time must be before 7 PM IST" });
+        console.log("end of day", endOfDayIST)
+        console.log(breakEndIST > breakStartIST)
+        console.log(breakEndIST < endOfDayIST)
+        console.log(breakEndIST > breakStartIST && breakEndIST < endOfDayIST)
+        if (breakEndIST < breakStartIST && breakEndIST > endOfDayIST) {
+            res.status(400).json({ end: breakEndIST, now: istDate, message: "Break end time must be before 7 PM IST" });
             return;
         }
 
@@ -206,8 +213,8 @@ export const addBreak = async (req: any, res: any) => {
         if (attendance.breaks.length < 4) {
 
             attendance.breaks.push({
-                breakStartTime: new Date(breakStartTime),
-                breakEndTime: new Date(breakEndTime),
+                breakStartTime: new Date(breakStartIST),
+                breakEndTime: new Date(breakEndIST),
             });
             await attendance.save();
             res.status(200).json({

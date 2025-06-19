@@ -2,12 +2,11 @@ import { Holiday, SocialLinks, User } from "../schema/UserModels";
 
 export const postHolidays = async (req: any, res: any) => {
 
-    const { date, day, description } = req.body;
+    const { date, holidayName } = req.body;
 
     const newHoliday = new Holiday({
         date: date,
-        day: day,
-        description: description
+        description: holidayName
     });
 
     try {

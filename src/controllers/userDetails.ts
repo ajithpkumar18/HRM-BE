@@ -269,7 +269,7 @@ export const deleteUser = async (req: any, res: any) => {
     console.log(req.params)
     try {
 
-        const user = await User.findOneAndDelete({ companyID: companyIdToDelete });
+        const user = await User.findOneAndDelete({ _id: req.params.id });
         console.log(companyIdToDelete, user);
 
 

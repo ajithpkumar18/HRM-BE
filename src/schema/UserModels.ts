@@ -194,10 +194,6 @@ const HolidaySchema = new mongoose.Schema({
         type: Date,
 
     },
-    day: {
-        type: String,
-
-    },
     description: {
         type: String,
 
@@ -212,6 +208,16 @@ const LeadsSchema = new mongoose.Schema(
             trim: true,
         },
         contact_number: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        website: {
             type: String,
             required: true,
             trim: true,

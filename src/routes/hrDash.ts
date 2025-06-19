@@ -57,8 +57,8 @@ router.put("/contact/:id", authMiddleware, authorizeRoles(["Admin", "HR", "Emplo
 router.get("/attendance/daily", authMiddleware, authorizeRoles(["HR", "Admin"]), getDailyAttendance);
 router.post("/attendance/break", authMiddleware, authorizeRoles(["HR", "Admin", "Employee"]), addBreak);
 router.get("/attendance/:id", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), getAttendance);
-router.post("/attendance/login", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), loginAttendance);
-router.post("/attendance/logout", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), logoutAttendance);
+router.post("/attendance/clockin", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), loginAttendance);
+router.post("/attendance/clockout", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), logoutAttendance);
 router.put("/attendance/:id", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), updateAttendance);
 
 
