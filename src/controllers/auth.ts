@@ -28,12 +28,10 @@ export const SignIn = async (req: Request, res: Response) => {
         res.status(400).json({ "message": "Invalid Input" });
         return;
     }
-    console.log(passwordValidationResult.success, identifierValidationResult.success, "Sign in endpoint")
 
     try {
 
         const newUser = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
-        console.log(identifier, password, newUser)
         if (!newUser) {
             res.status(400).json({ message: "User not found" });
             return;
@@ -44,7 +42,6 @@ export const SignIn = async (req: Request, res: Response) => {
             return;
         }
         const isMatch = await bcrypt.compare(password, newUser.password);
-        console.log(newUser, isMatch);
         if (!isMatch) {
             res.status(400).json({ message: "Invalid password" });
             return;
@@ -61,14 +58,12 @@ export const SignIn = async (req: Request, res: Response) => {
         return;
 
     } catch (err) {
-        console.log(err);
         res.status(500).json({ message: "Error logging in" });
     }
 
 }
 
 export const SignUp = async (req: Request, res: Response) => {
-    console.log("signup");
 
     const { username, email, password, role } = req.body;
 

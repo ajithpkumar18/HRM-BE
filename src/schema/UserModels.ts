@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
     companyID: {
         type: String,
         unique: true,
+        trim: true
     },
     fullName: {
         type: String,
@@ -183,8 +184,8 @@ const attendanceSchema = new mongoose.Schema({
     status: { type: String, enum: ["Present", "Leave"], required: true },
     breaks: [
         {
-            breakStartTime: { type: Date, required: true },
-            breakEndTime: { type: Date, required: true },
+            breakStartTime: { type: Date },
+            breakEndTime: { type: Date },
         },
     ],
 });
@@ -244,6 +245,54 @@ const LeadsSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+const leaveSchema = new mongoose.Schema(
+    {
+        companyID: {
+            type: String, // Keep it as a string
+            ref: "User", // Reference the User model
+            refPath: "companyID",
+            required: true,
+            trim: true
+        },
+        leaveType: {
+            type: String,
+            enum: ["Sick Leave", "Casual Leave", "Earned Leave", "Maternity Leave", "Paternity Leave", "Unpaid Leave"],
+            required: true,
+        },
+        startDate: {
+            type: Date,
+            required: true,
+        },
+        endDate: {
+            type: Date,
+            required: true,
+        },
+        reason: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        status: {
+            type: String,
+            enum: ["Pending", "Approved", "Rejected"],
+            default: "Pending",
+        },
+        appliedOn: {
+            type: Date,
+            default: Date.now,
+        },
+        approvedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+        comments: {
+            type: String,
+            trim: true,
+        },
+    },
+    { timestamps: true }
+);
+
 export const User = mongoose.model("User", userSchema)
 export const SocialLinks = mongoose.model("SocialLinks", socialLinksSchema)
 export const Contact = mongoose.model("Contact", contactSchema)
@@ -252,6 +301,7 @@ export const PrevEmployment = mongoose.model("PrevEmployment", prevEmploymentSch
 export const Attendance = mongoose.model("Attendance", attendanceSchema)
 export const Holiday = mongoose.model("Holiday", HolidaySchema)
 export const Leads = mongoose.model("Leads", LeadsSchema);
+export const Leave = mongoose.model("Leave", leaveSchema);
 
 
 

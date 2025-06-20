@@ -24,7 +24,7 @@ export const postPrevEmployment = async (req: any, res: any) => {
     }
     catch (error) {
         res.status(500).json({ message: "Error creating prev employment" });
-        console.log(error);
+
     }
 
     return;
@@ -55,8 +55,7 @@ export const getPrevEmploymentById = async (req: any, res: any) => {
 export const updatePrevEmployment = async (req: any, res: any) => {
     const userId = req.id;
     const user = await User.findById(userId);
-    console.log(userId, "userId");
-    console.log(user, "user");
+
 
     if (!user) {
         res.status(404).json({ message: "User not found" });
@@ -81,7 +80,7 @@ export const updatePrevEmployment = async (req: any, res: any) => {
         }, { new: true });
 
         res.json(updatedUser);
-        console.log("Updated User", updatedUser);
+
 
     }
     catch (error) {

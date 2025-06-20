@@ -9,7 +9,7 @@ export const getUser = async (req: any, res: any) => {
         return;
     }
 
-    console.log((req as any).isAdmin, "req.body");
+
 
     res.json(users);
 
@@ -31,7 +31,7 @@ export const getUserById = async (req: any, res: any) => {
 export const deleteUser = async (req: any, res: any) => {
 
     const userId = req.user.id;
-    console.log(userId, "userId");
+
     const user = await User.findById(userId);
 
     if (!user) {

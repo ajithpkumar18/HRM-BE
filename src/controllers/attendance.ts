@@ -7,8 +7,7 @@ export const loginAttendance = async (req: any, res: any) => {
 
     const today = new Date();
     const istDate = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
-    const dateOnly = new Date().toISOString().split('T')[0]
-    console.log("Login attempt by user:", userId);
+    const dateOnly = new Date().toISOString().split('T')[0];
 
     try {
 
@@ -18,7 +17,6 @@ export const loginAttendance = async (req: any, res: any) => {
             res.status(200).json({ message: "Attendance already marked for today", attendance: existingAttendance });
             return;
         }
-        console.log(dateOnly)
 
         const newAttendance = new Attendance({
             userId: userId,
@@ -46,7 +44,6 @@ export const logoutAttendance = async (req: any, res: any) => {
     const istDate = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
     const dateOnly = new Date().toISOString().split('T')[0]
 
-    console.log("Logout attempt by user:", userId);
 
     try {
         const attendance = await Attendance.findOne({ userId: userId, date: dateOnly, status: "Present" });
@@ -163,43 +160,15 @@ export const addBreak = async (req: any, res: any) => {
     const userId = req.userID;
     const { breakStartTime, breakEndTime } = req.body;
 
-    console.log("Break", userId, breakStartTime, breakEndTime)
-    if (!breakStartTime || !breakEndTime) {
-        res.status(400).json({ message: "Break start time and end time are required" });
+    if (!breakStartTime && !breakEndTime) {
+        res.status(400).json({ message: "Either break start time or break end time is required" });
         return;
     }
 
     try {
-
         const today = new Date();
         const istDate = new Date(today.getTime() + 5.5 * 60 * 60 * 1000);
         const dateOnly = new Date().toISOString().split('T')[0]
-
-        const breakStart = new Date(breakStartTime);
-        const breakStartIST = new Date(breakStart.getTime() + 5.5 * 60 * 60 * 1000);
-        const breakEnd = new Date(breakEndTime);
-        const breakEndIST = new Date(breakEnd.getTime() + 5.5 * 60 * 60 * 1000);
-        console.log("now:", istDate, "breakStart: ", new Date(breakStart.getTime() + 5.5 * 60 * 60 * 1000), "breakEnd:", new Date(breakEnd.getTime() + 5.5 * 60 * 60 * 1000))
-
-        if (breakStartIST >= istDate) {
-            res.status(400).json({ start: istDate, now: breakStart, message: "Break start time must be greater than the current time" });
-            return;
-        }
-
-        const endOfDay = new Date(istDate);
-        endOfDay.setHours(19, 0, 0, 0);
-        const endOfDayIST = new Date(endOfDay.getTime() + 5.5 * 60 * 60 * 1000)
-
-        console.log("end of day", endOfDayIST)
-        console.log(breakEndIST > breakStartIST)
-        console.log(breakEndIST < endOfDayIST)
-        console.log(breakEndIST > breakStartIST && breakEndIST < endOfDayIST)
-        if (breakEndIST < breakStartIST && breakEndIST > endOfDayIST) {
-            res.status(400).json({ end: breakEndIST, now: istDate, message: "Break end time must be before 7 PM IST" });
-            return;
-        }
-
-        console.log(dateOnly);
         const attendance = await Attendance.findOne({ userId: userId, date: dateOnly });
 
         if (!attendance) {
@@ -210,24 +179,70 @@ export const addBreak = async (req: any, res: any) => {
         if (!attendance.breaks) {
             attendance.breaks = attendance.breaks || [];
         }
-        if (attendance.breaks.length < 4) {
 
+        if (breakStartTime) {
+            const breakStart = new Date(breakStartTime);
+            const breakStartIST = new Date(breakStart.getTime() + 5.5 * 60 * 60 * 1000);
+            if (breakStartIST > istDate) {
+                res.status(400).json({ message: "Break start time must be greater than the current time" });
+                return;
+            }
+
+            if (attendance.breaks.length >= 4) {
+                res.status(400).json({ message: "You have already taken 4 breaks today" });
+                return;
+            }
+
+            // Add a new break with only the start time
             attendance.breaks.push({
-                breakStartTime: new Date(breakStartIST),
-                breakEndTime: new Date(breakEndIST),
+                breakStartTime: breakStartIST,
+                breakEndTime: null, // End time will be added later
             });
             await attendance.save();
+
             res.status(200).json({
-                message: "Break added successfully",
+                message: "Break start time recorded successfully",
                 attendance,
             });
-        }
-        else {
-            res.status(411).json({ message: "4 breaks already done" })
+            return;
         }
 
+        // Handle break end time
+        if (breakEndTime) {
+            const breakEnd = new Date(breakEndTime);
+            const breakEndIST = new Date(breakEnd.getTime() + 5.5 * 60 * 60 * 1000);
 
+            const endOfDay = new Date(istDate);
+            endOfDay.setHours(19, 0, 0, 0); // Set to 7 PM IST
 
+            if (breakEndIST > endOfDay) {
+                res.status(400).json({ message: "Break end time must be before 7 PM IST" });
+                return;
+            }
+
+            // Find the last break without an end time
+            const lastBreak = attendance.breaks.find((b: any) => !b.breakEndTime);
+
+            if (!lastBreak) {
+                res.status(400).json({ message: "No break start time found. Please start a break first." });
+                return;
+            }
+
+            if (lastBreak.breakStartTime && breakEndIST <= new Date(lastBreak.breakStartTime)) {
+                res.status(400).json({ message: "Break end time must be after the break start time" });
+                return;
+            }
+
+            // Update the last break with the end time
+            lastBreak.breakEndTime = breakEndIST;
+            await attendance.save();
+
+            res.status(200).json({
+                message: "Break end time recorded successfully",
+                attendance,
+            });
+            return;
+        }
     } catch (error) {
         console.error("Error adding break:", error);
         res.status(500).json({ message: "Error adding break", error });

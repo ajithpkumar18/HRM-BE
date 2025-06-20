@@ -78,7 +78,7 @@ export const getUserDetails = async (req: any, res: any) => {
         return;
     }
 
-    console.log((req as any).isAdmin, "req.body");
+
 
     res.json(userDetails);
 
@@ -86,10 +86,10 @@ export const getUserDetails = async (req: any, res: any) => {
 }
 
 export const getUserDetailsById = async (req: any, res: any) => {
-    console.log("get Employee by ID");
+
     const companyID = req.params.id;
     const userID = req.userID;
-    console.log(companyID, "userId");
+
     try {
 
         const userDetails = await User.findOne({ _id: userID });
@@ -112,10 +112,10 @@ export const getUserDetailsById = async (req: any, res: any) => {
 }
 
 export const getUserDetailsByCompanyID = async (req: any, res: any) => {
-    console.log("get Employee by ID");
+
     const companyID = req.params.id;
     const userID = req.userID;
-    console.log(companyID, "userId");
+
     try {
 
         const userDetails = await User.findOne({ companyID });
@@ -127,7 +127,21 @@ export const getUserDetailsByCompanyID = async (req: any, res: any) => {
 
         }
 
-        res.status(200).json(userDetails);
+        res.status(200).json(
+            userDetails.username,
+            userDetails.email,
+            userDetails.role,
+            userDetails.companyID,
+            userDetails.fullName,
+            userDetails.residence,
+            userDetails.dateOfBirth,
+            userDetails.fullAddress,
+            userDetails.designation,
+            userDetails.empRole,
+            userDetails.empType,
+            userDetails.team,
+            userDetails.dateOfJoining,
+            userDetails.dateOfLeaving);
 
     }
     catch (error) {
@@ -140,9 +154,7 @@ export const getUserDetailsByCompanyID = async (req: any, res: any) => {
 export const SearchUserDetails = async (req: any, res: any) => {
     const query = req.query.q;
 
-    console.log(query, "SearchUserDetails")
     try {
-        console.log("searching users");
 
         const userDetails = await User.find({
             $or: [
@@ -150,7 +162,6 @@ export const SearchUserDetails = async (req: any, res: any) => {
                 { companyID: { $regex: query, $options: 'i' } }
             ]
         });
-        console.log("user details", userDetails)
 
         if (!userDetails || userDetails.length === 0) {
             res.status(404).json({ message: "No users found matching the search criteria" });
@@ -178,7 +189,6 @@ export const SearchUserDetails = async (req: any, res: any) => {
 };
 
 export const updateUserDetails = async (req: any, res: any) => {
-    console.log("UpdateDeyails")
     const userRole = req.user?.role;
     const authenticatedUserId = req.user?.id;
     const companyIDToUpdate = req.params.id;
@@ -198,16 +208,12 @@ export const updateUserDetails = async (req: any, res: any) => {
         }
 
         if (userRole === "Employee" && authenticatedUserId !== userDetails._id.toString()) {
-            console.log(authenticatedUserId, userDetails._id)
             res.status(403).json({ message: "Unauthorized. Employees can only update their own details." });
             return;
         }
 
         const {
             username,
-            email,
-            password,
-            isAdmin,
             role,
             fullName,
             companyID,
@@ -223,10 +229,6 @@ export const updateUserDetails = async (req: any, res: any) => {
             dateOfLeaving
         } = req.body;
 
-        let newPassword = userDetails.password;
-        if (password) {
-            newPassword = await bcrypt.hash(password, 10);
-        }
         const updatedUserDetails = await User.findOneAndUpdate(
             {
                 $or: [
@@ -236,9 +238,6 @@ export const updateUserDetails = async (req: any, res: any) => {
             },
             {
                 username,
-                email,
-                password: newPassword,
-                isAdmin,
                 role,
                 fullName,
                 companyID,
@@ -256,7 +255,20 @@ export const updateUserDetails = async (req: any, res: any) => {
             { new: true }
         );
 
-        res.status(200).json({ message: "User details updated successfully", updatedUserDetails });
+        res.status(200).json({ message: "User details updated successfully" }, userDetails.username,
+            userDetails.email,
+            userDetails.role,
+            userDetails.companyID,
+            userDetails.fullName,
+            userDetails.residence,
+            userDetails.dateOfBirth,
+            userDetails.fullAddress,
+            userDetails.designation,
+            userDetails.empRole,
+            userDetails.empType,
+            userDetails.team,
+            userDetails.dateOfJoining,
+            userDetails.dateOfLeaving);
     } catch (error) {
         console.error("Error updating user details:", error);
         res.status(500).json({ message: "Error updating user details", error });
@@ -266,11 +278,9 @@ export const updateUserDetails = async (req: any, res: any) => {
 export const deleteUser = async (req: any, res: any) => {
     const userID = req.userID;
     const companyIdToDelete = req.params.id;
-    console.log(req.params)
     try {
 
         const user = await User.findOneAndDelete({ _id: req.params.id });
-        console.log(companyIdToDelete, user);
 
 
         if (!user) {

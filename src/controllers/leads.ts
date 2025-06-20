@@ -28,7 +28,7 @@ export const getLeadById = async (req: Request, res: Response) => {
 
 export const createLead = async (req: Request, res: Response) => {
     const { assignedTo, email, website, contactPerson, contactNumber, marketNiche, service, status } = req.body;
-    console.log(req.body)
+
     try {
         const user = await User.findOne({ companyID: assignedTo })
         if (user) {

@@ -9,14 +9,17 @@ import { getSocialById, postSocialById, updateSocialById } from "../controllers/
 import { getDocumentById, postDocumentId, updateDocumentId } from "../controllers/document";
 import { getContactById, postContactId, updateContactId } from "../controllers/contact";
 import { addBreak, getAttendance, getDailyAttendance, loginAttendance, logoutAttendance, updateAttendance } from "../controllers/attendance";
-import { SignIn, SignUp } from "../controllers/auth";
+import { Logout, SignIn, SignUp } from "../controllers/auth";
 import { createLead, deleteLead, getLeadById, getLeads, updateLead } from "../controllers/leads";
+import { getLeaves, getLeaveById, createLeave, updateLeave, deleteLeave, SearchLeaves } from "../controllers/leaves";
 
 const router = Router();
 
 router.post('/signin', SignIn);
 
 router.post('/signup', SignUp)
+
+router.post('/logout', Logout)
 
 
 router.get("/employees", authMiddleware, authorizeRoles(["Admin", "HR"]), getUserDetails);
@@ -73,5 +76,13 @@ router.get("/holidays", authMiddleware, authorizeRoles(["Admin", "HR", "Employee
 router.post("/holidays", authMiddleware, authorizeRoles(["Admin", "HR"]), postHolidays);
 router.put("/holidays/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateHoliday);
 router.delete("/holidays/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteHoliday);
+
+
+router.get("/leaves", authMiddleware, authorizeRoles(["Admin", "HR"]), getLeaves);
+router.get("/leaves/search", authMiddleware, authorizeRoles(["Admin", "HR"]), SearchLeaves);
+router.get("/leaves/:id", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), getLeaveById);
+router.post("/leaves", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), createLeave);
+router.put("/leaves/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateLeave);
+router.delete("/leaves/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteLeave);
 
 export default router;
