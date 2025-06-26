@@ -234,8 +234,7 @@ const LeadsSchema = new mongoose.Schema(
             trim: true,
         },
         assigned_to: {
-            type: String,
-            required: true,
+            type: String
         },
         status: {
             type: String,
@@ -248,8 +247,8 @@ const LeadsSchema = new mongoose.Schema(
 const leaveSchema = new mongoose.Schema(
     {
         companyID: {
-            type: String, // Keep it as a string
-            ref: "User", // Reference the User model
+            type: String,
+            ref: "User",
             refPath: "companyID",
             required: true,
             trim: true
@@ -293,6 +292,46 @@ const leaveSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+const candidateSchema = new mongoose.Schema(
+    {
+        fullName: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            trim: true,
+            unique: true,
+        },
+        phone: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        positionApplied: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        resumeLink: {
+            type: String,
+            trim: true,
+        },
+        status: {
+            type: String,
+            enum: ["Applied", "Screening", "Interview", "Offered", "Rejected", "Hired"],
+            default: "Applied",
+        },
+        appliedOn: {
+            type: Date,
+            default: Date.now,
+        }
+    },
+    { timestamps: true }
+);
+
 export const User = mongoose.model("User", userSchema)
 export const SocialLinks = mongoose.model("SocialLinks", socialLinksSchema)
 export const Contact = mongoose.model("Contact", contactSchema)
@@ -302,6 +341,7 @@ export const Attendance = mongoose.model("Attendance", attendanceSchema)
 export const Holiday = mongoose.model("Holiday", HolidaySchema)
 export const Leads = mongoose.model("Leads", LeadsSchema);
 export const Leave = mongoose.model("Leave", leaveSchema);
+export const Candidate = mongoose.model("Candidate", candidateSchema);
 
 
 

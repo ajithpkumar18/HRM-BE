@@ -10,8 +10,9 @@ import { getDocumentById, postDocumentId, updateDocumentId } from "../controller
 import { getContactById, postContactId, updateContactId } from "../controllers/contact";
 import { addBreak, getAttendance, getDailyAttendance, loginAttendance, logoutAttendance, updateAttendance } from "../controllers/attendance";
 import { Logout, SignIn, SignUp } from "../controllers/auth";
-import { createLead, deleteLead, getLeadById, getLeads, updateLead } from "../controllers/leads";
+import { bulkUploadLeads, createLead, deleteLead, getLeadById, getLeads, updateLead } from "../controllers/leads";
 import { getLeaves, getLeaveById, createLeave, updateLeave, deleteLeave, SearchLeaves } from "../controllers/leaves";
+import { addCandidate, getCandidates } from "../controllers/candidates";
 
 const router = Router();
 
@@ -70,7 +71,12 @@ router.get("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), getLea
 router.post("/leads", authMiddleware, authorizeRoles(["Admin", "HR"]), createLead);
 router.put("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateLead);
 router.delete("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteLead);
-
+router.post(
+    "/leads/bulk-upload",
+    authMiddleware,
+    authorizeRoles(["Admin", "HR"]),
+    bulkUploadLeads
+);
 
 router.get("/holidays", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), getHoliday);
 router.post("/holidays", authMiddleware, authorizeRoles(["Admin", "HR"]), postHolidays);
@@ -84,5 +90,12 @@ router.get("/leaves/:id", authMiddleware, authorizeRoles(["Admin", "HR", "Employ
 router.post("/leaves", authMiddleware, authorizeRoles(["Admin", "HR", "Employee"]), createLeave);
 router.put("/leaves/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateLeave);
 router.delete("/leaves/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteLeave);
+
+router.get("/candidates", authMiddleware, authorizeRoles(["Admin", "HR"]), getCandidates);
+router.get("/candidates/search", authMiddleware, authorizeRoles(["Admin", "HR"]), SearchLeaves);
+router.get("/candidates/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), getLeaveById);
+router.post("/candidates", authMiddleware, authorizeRoles(["Admin", "HR"]), addCandidate);
+router.put("/candidates/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateLeave);
+router.delete("/candidates/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteLeave);
 
 export default router;

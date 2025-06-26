@@ -84,3 +84,22 @@ export const deleteLead = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Error deleting lead", error });
     }
 };
+
+export const bulkUploadLeads = async (req: Request, res: Response) => {
+    try {
+        const leads = req.body.leads;
+        console.log(leads);
+
+        if (!Array.isArray(leads) || leads.length === 0) {
+            res.status(400).json({ message: "No leads provided" });
+            return;
+        }
+        const result = await Leads.insertMany(leads);
+        res.status(201).json({ message: "Leads uploaded successfully" });
+        return;
+    } catch (error) {
+        console.error("Bulk upload error:", error);
+        res.status(500).json({ message: "Error uploading leads", error });
+        return;
+    }
+};
