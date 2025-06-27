@@ -1,5 +1,5 @@
-import { Holiday, SocialLinks, User } from "../schema/UserModels";
-
+import { Holiday } from "../schema/UserModels";
+import { Request, Response } from "express";
 export const postHolidays = async (req: any, res: any) => {
 
     const { date, holidayName } = req.body;
@@ -83,3 +83,32 @@ export const updateHoliday = async (req: any, res: any) => {
     }
     return;
 }
+
+export const bulkUploadHolidays = async (req: Request, res: Response) => {
+    try {
+        const holidays = req.body.holidays;
+        if (!Array.isArray(holidays) || holidays.length === 0) {
+            res.status(400).json({ message: "No holidays provided" });
+            return;
+        }
+
+        const formattedHolidays = holidays.map(h => ({
+            date: h.date ? new Date(h.date) : undefined,
+            description: h.description || h.holidayName || ""
+        }));
+
+        const validHolidays = formattedHolidays.filter(h => h.date instanceof Date && !isNaN(h.date.getTime()));
+
+        if (validHolidays.length === 0) {
+            res.status(400).json({ message: "No valid holidays to upload" });
+            return;
+        }
+
+        const result = await Holiday.insertMany(validHolidays);
+        res.status(201).json({ message: "Holidays uploaded successfully", insertedCount: result.length });
+    } catch (error) {
+        console.error("Bulk upload holidays error:", error);
+        res.status(500).json({ message: "Error uploading holidays", error });
+    }
+};
+

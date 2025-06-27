@@ -139,7 +139,11 @@ export const getDailyAttendance = async (req: any, res: any) => {
                     checkOutTime: 1,
                     breaks: 1,
                     "userDetails.username": 1,
-                    "userDetails.email": 1
+                    "userDetails.email": 1,
+                    "userDetails.designation": 1,
+                    "userDetails.empType": 1,
+                    "userDetails.empRole": 1,
+                    "userDetails.companyID": 1
                 }
             }
         ]);
@@ -193,10 +197,9 @@ export const addBreak = async (req: any, res: any) => {
                 return;
             }
 
-            // Add a new break with only the start time
             attendance.breaks.push({
                 breakStartTime: breakStartIST,
-                breakEndTime: null, // End time will be added later
+                breakEndTime: null,
             });
             await attendance.save();
 
@@ -207,20 +210,18 @@ export const addBreak = async (req: any, res: any) => {
             return;
         }
 
-        // Handle break end time
         if (breakEndTime) {
             const breakEnd = new Date(breakEndTime);
             const breakEndIST = new Date(breakEnd.getTime() + 5.5 * 60 * 60 * 1000);
 
             const endOfDay = new Date(istDate);
-            endOfDay.setHours(19, 0, 0, 0); // Set to 7 PM IST
+            endOfDay.setHours(19, 0, 0, 0);
 
             if (breakEndIST > endOfDay) {
                 res.status(400).json({ message: "Break end time must be before 7 PM IST" });
                 return;
             }
 
-            // Find the last break without an end time
             const lastBreak = attendance.breaks.find((b: any) => !b.breakEndTime);
 
             if (!lastBreak) {
@@ -233,7 +234,6 @@ export const addBreak = async (req: any, res: any) => {
                 return;
             }
 
-            // Update the last break with the end time
             lastBreak.breakEndTime = breakEndIST;
             await attendance.save();
 

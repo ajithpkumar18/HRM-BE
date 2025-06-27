@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware, authorizeRoles } from "../middlewares/auth";
 import { getUserDetails, getUserDetailsByCompanyID, getUserDetailsById, postUserDetails, SearchUserDetails, updateUserDetails } from "../controllers/userDetails";
-import { deleteHoliday, getHoliday, postHolidays, updateHoliday } from "../controllers/holiday";
+import { bulkUploadHolidays, deleteHoliday, getHoliday, postHolidays, updateHoliday } from "../controllers/holiday";
 import { deleteUser } from "../controllers/userDetails";
 import { get } from "mongoose";
 import { getPrevEmploymentById, postPrevEmployment, updatePrevEmployment } from "../controllers/prevEmployment";
@@ -69,7 +69,7 @@ router.put("/attendance/:id", authMiddleware, authorizeRoles(["Admin", "HR", "Em
 router.get("/leads", authMiddleware, authorizeRoles(["Admin", "HR"]), getLeads);
 router.get("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), getLeadById);
 router.post("/leads", authMiddleware, authorizeRoles(["Admin", "HR"]), createLead);
-router.put("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateLead);
+router.patch("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateLead);
 router.delete("/leads/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteLead);
 router.post(
     "/leads/bulk-upload",
@@ -82,7 +82,12 @@ router.get("/holidays", authMiddleware, authorizeRoles(["Admin", "HR", "Employee
 router.post("/holidays", authMiddleware, authorizeRoles(["Admin", "HR"]), postHolidays);
 router.put("/holidays/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), updateHoliday);
 router.delete("/holidays/:id", authMiddleware, authorizeRoles(["Admin", "HR"]), deleteHoliday);
-
+router.post(
+    "/holidays/bulk-upload",
+    authMiddleware,
+    authorizeRoles(["Admin", "HR"]),
+    bulkUploadHolidays
+);
 
 router.get("/leaves", authMiddleware, authorizeRoles(["Admin", "HR"]), getLeaves);
 router.get("/leaves/search", authMiddleware, authorizeRoles(["Admin", "HR"]), SearchLeaves);

@@ -57,6 +57,7 @@ export const createLead = async (req: Request, res: Response) => {
 
 export const updateLead = async (req: Request, res: Response) => {
     const { id } = req.params;
+    console.log(id)
     try {
         const updatedLead = await Leads.findByIdAndUpdate(id, req.body, { new: true });
         if (!updatedLead) {
